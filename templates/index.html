@@ -142,7 +142,28 @@
         resultScreen.classList.remove('hidden');
         resultSummary.innerText = userInfo ? `Name: ${userInfo.full_name} • School: ${userInfo.school_name} • Email: ${userInfo.email}` : '';
         document.getElementById('score-text').innerText = `You got ${score} out of ${quizData.length} correct.`;
+        sendScoreToDatabase(score);
     }
+    async function sendScoreToDatabase(totalScore) {
+        try {
+            const response = await fetch('/api/submit-score', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ score: totalScore })
+            });
+
+            if (response.ok) {
+                console.log("Score recorded in Supabase!");
+            } else {
+                console.error("Failed to save score.");
+            }
+        } catch (err) {
+            console.error("Network error:", err);
+        }
+    }
+
+// Call this function when the quiz ends:
+// sendScoreToDatabase(points);
 
     // Start with the user info form
 </script>
