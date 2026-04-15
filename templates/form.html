@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Start the Test</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+<div id="quiz-container">
+    <header class="quiz-header">
+        <span class="eyebrow">Logic & Problem-Solving Evaluation</span>
+        <p>Tell us your full name and school before starting the quiz.</p>
+    </header>
+
+    <section id="initial-form" class="card-body">
+        <div class="card-top">
+            <div class="card-title-row">
+                <span class="card-title">Student Information</span>
+            </div>
+            <p class="form-subtitle">Your details will be stored for later use when a database is connected.</p>
+        </div>
+
+        <div class="input-group">
+            <label for="full-name">Full Name</label>
+            <input id="full-name" type="text" placeholder="Jane Doe" autocomplete="name" />
+        </div>
+
+        <div class="input-group">
+            <label for="school-name">School Name</label>
+            <input id="school-name" type="text" placeholder="River Valley High" autocomplete="organization" />
+        </div>
+        <div class="input-group">
+            <label for="email">Email</label>
+            <input id="email" type="text" placeholder="Enter your email" autocomplete="email"/>
+        </div>
+
+        <button id="start-btn">Start Quiz</button>
+    </section>
+</div>
+
+<script>
+    const fullNameInput = document.getElementById('full-name');
+    const schoolNameInput = document.getElementById('school-name');
+    const emailInput = document.getElementById('email');
+    const startBtn = document.getElementById('start-btn');
+
+    async function submitUserInfo() {
+        const fullName = fullNameInput.value.trim();
+        const schoolName = schoolNameInput.value.trim();
+        const email = emailInput.value.trim();
+
+        if (!fullName || !schoolName || !email) {
+            alert('Please enter your full name, school name, and your email.');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ full_name: fullName, school_name: schoolName, email: email })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                alert(error.error || 'Unable to save your information.');
+                return;
+            }
+
+            window.location.href = '/quiz';
+        } catch (err) {
+            console.error(err);
+            alert('Error saving your information. Try again.');
+        }
+    }
+
+    startBtn.onclick = submitUserInfo;
+</script>
+</body>
+</html>

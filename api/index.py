@@ -1,8 +1,21 @@
-from flask import Flask, render_template, jsonify
+from dataclasses import asdict, dataclass
+from datetime import datetime
+from flask import Flask, render_template, jsonify, request, session, redirect
 
 app = Flask(__name__, 
             template_folder='../templates', 
             static_folder='../static')
+app.secret_key = 'dev-secret-key'  # replace with a secure secret in production
+
+# Placeholder storage for user data until a real database is configured
+USER_SUBMISSIONS = []
+
+@dataclass
+class UserRecord:
+    full_name: str
+    school_name: str
+    email: str
+    started_at: str
 
 # The quiz data moved to the backend
 QUIZ_DATA = [
@@ -46,8 +59,46 @@ QUIZ_DATA = [
 
 @app.route('/')
 def index():
+    return render_template('form.html')
+
+@app.route('/quiz')
+def quiz():
+    if 'user_info' not in session:
+        return redirect('/')
     return render_template('index.html')
+
+def save_user_record(user: UserRecord):
+    # This is a temporary placeholder for database persistence.
+    USER_SUBMISSIONS.append(asdict(user))
+    return user
+
+@app.route('/api/user', methods=['GET', 'POST'])
+def save_user():
+    if request.method == 'GET':
+        user_info = session.get('user_info')
+        if not user_info:
+            return jsonify({'error': 'User info not found.'}), 404
+        return jsonify(user_info)
+
+    payload = request.get_json() or {}
+    full_name = payload.get('full_name', '').strip()
+    school_name = payload.get('school_name', '').strip()
+    email = payload.get('email', '').strip()
+
+    if not full_name or not school_name or not email:
+        return jsonify({'error': 'Full name, school name, and email are required.'}), 400
+
+    user = UserRecord(full_name=full_name,
+                      school_name=school_name,
+                      email=email,
+                      started_at=datetime.utcnow().isoformat())
+    session['user_info'] = asdict(user)
+    save_user_record(user)
+    return jsonify(session['user_info'])
 
 @app.route('/api/questions')
 def get_questions():
     return jsonify(QUIZ_DATA)
+
+if __name__ == "__main__":
+    app.run(debug=True)
