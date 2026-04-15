@@ -86,7 +86,7 @@ def quiz_page():
 def get_questions():
     return jsonify(QUIZ_DATA)
 
-@app.route('/api/register', methods=['POST'])
+@app.route('/api/user', methods=['POST'])
 def register_user():
     """Initial registration from form.html"""
     data = request.json
