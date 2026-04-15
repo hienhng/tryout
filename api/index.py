@@ -1,14 +1,21 @@
+import os
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from flask import Flask, render_template, jsonify, request, session, redirect
+from supabase import create_client, Client
 
 app = Flask(__name__, 
             template_folder='../templates', 
             static_folder='../static')
-app.secret_key = 'dev-secret-key'  # replace with a secure secret in production
 
-# Placeholder storage for user data until a real database is configured
-USER_SUBMISSIONS = []
+# Set a secret key for sessions (Vercel will use your environment variable)
+app.secret_key = os.environ.get("SECRET_KEY", "a-very-secret-phrase-123")
+
+# --- SUPABASE SETUP ---
+# These are pulled automatically from your Vercel + Supabase integration
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_ANON_KEY")
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 @dataclass
 class UserRecord:
@@ -16,15 +23,16 @@ class UserRecord:
     school_name: str
     email: str
     started_at: str
+    score: int = 0
 
-# The quiz data moved to the backend
+# --- QUIZ DATA ---
 QUIZ_DATA = [
     {
-        "q": "You have a filing cabinet with 1,000,000 folders, organized alphabetically. Which method is most efficient to find one specific folder?",
+        "q": "You have a filing cabinet with 1,000,000 folders...",
         "options": [
-            {"text": "Open the middle, check if before/after, and repeat splitting in half.", "correct": True, "note": "This is Binary Search—the gold standard for sorted data."},
-            {"text": "Start at the first folder and check every single one.", "correct": False, "note": "This is Linear Search; it's $O(n)$ and too slow here."},
-            {"text": "Pick random drawers and hope you get lucky.", "correct": False, "note": "Randomness isn't a reliable algorithm."}
+            {"text": "Open the middle, check if before/after...", "correct": True, "note": "Binary Search..."},
+            {"text": "Start at the first folder...", "correct": False, "note": "Linear Search..."},
+            {"text": "Pick random drawers...", "correct": False, "note": "Randomness..."}
         ]
     },
     {
@@ -55,50 +63,66 @@ QUIZ_DATA = [
             {"text": "The box grows larger on its own.", "correct": False, "note": "Hardware needs explicit instructions to reallocate memory."}
         ]
     }
+    # ... add your other 4 questions here ...
 ]
 
+# --- PAGE ROUTES ---
+
 @app.route('/')
-def index():
+def home():
+    # Landing page with the registration form (form.html)
     return render_template('form.html')
 
 @app.route('/quiz')
-def quiz():
+def quiz_page():
+    # Only allow access if user has submitted the form
     if 'user_info' not in session:
         return redirect('/')
     return render_template('index.html')
 
-def save_user_record(user: UserRecord):
-    # This is a temporary placeholder for database persistence.
-    USER_SUBMISSIONS.append(asdict(user))
-    return user
-
-@app.route('/api/user', methods=['GET', 'POST'])
-def save_user():
-    if request.method == 'GET':
-        user_info = session.get('user_info')
-        if not user_info:
-            return jsonify({'error': 'User info not found.'}), 404
-        return jsonify(user_info)
-
-    payload = request.get_json() or {}
-    full_name = payload.get('full_name', '').strip()
-    school_name = payload.get('school_name', '').strip()
-    email = payload.get('email', '').strip()
-
-    if not full_name or not school_name or not email:
-        return jsonify({'error': 'Full name, school name, and email are required.'}), 400
-
-    user = UserRecord(full_name=full_name,
-                      school_name=school_name,
-                      email=email,
-                      started_at=datetime.utcnow().isoformat())
-    session['user_info'] = asdict(user)
-    save_user_record(user)
-    return jsonify(session['user_info'])
+# --- API ROUTES ---
 
 @app.route('/api/questions')
 def get_questions():
     return jsonify(QUIZ_DATA)
 
-if __name__ == "__main__":
-    app.run(debug=True)
+@app.route('/api/register', methods=['POST'])
+def register_user():
+    """Initial registration from form.html"""
+    data = request.json
+    
+    user_record = UserRecord(
+        full_name=data.get('full_name'),
+        school_name=data.get('school_name'),
+        email=data.get('email'),
+        started_at=datetime.utcnow().isoformat()
+    )
+
+    try:
+        # Save initial record to Supabase
+        supabase.table('scores').insert(asdict(user_record)).execute()
+        
+        # Store in session so /quiz route is unlocked
+        session['user_info'] = asdict(user_record)
+        return jsonify({"status": "success"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route('/api/submit-score', methods=['POST'])
+def submit_score():
+    """Update the score in Supabase when quiz ends"""
+    if 'user_info' not in session:
+        return jsonify({"error": "No session found"}), 401
+    
+    data = request.json
+    final_score = data.get('score')
+    user_email = session['user_info']['email']
+
+    try:
+        # Update the row where the email matches
+        supabase.table('scores').update({"score": final_score}).eq('email', user_email).execute()
+        return jsonify({"status": "score updated"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# No app.run() needed for Vercel!
