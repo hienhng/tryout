@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logic & Problem-Solving Evaluation</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/styles.css">
+        
+    
+</head>
+<body>
+
+<div id="quiz-container">
+    <div id="quiz-content">
+        <div id="quiz-card">
+            <div id="card-inner">
+                <section class="card-face card-front">
+                    <div>
+                        <span class="card-title">Question</span>
+                        <p id="progress"></p>
+                        <h2 id="question-text">Question Loading...</h2>
+                    </div>
+
+                    <div id="options-panel">
+                        <h3>Pick an answer</h3>
+                        <div id="options-container"></div>
+                        <button id="check-btn" class="hidden">Check Answer</button>
+                    </div>
+                </section>
+
+                <section class="card-face card-back">
+                    <div>
+                        <span class="card-title">Result</span>
+                        <div id="feedback" class="hidden"></div>
+                    </div>
+                    <button id="next-btn" class="hidden">Next Question</button>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-screen" class="hidden">
+        <h2>Evaluation Complete</h2>
+        <p id="score-text"></p>
+        <button onclick="location.reload()" id="restart-btn" style="float:none">Restart Quiz</button>
+    </div>
+</div>
+
+<script>
+    // 1. State Management
+    let quizData = [];
+    let currentQuestion = 0;
+    let score = 0;
+    let selectedIndex = null;
+    let questionAnswered = false;
+
+    // 2. Element Selectors
+    const questionEl = document.getElementById('question-text');
+    const optionsEl = document.getElementById('options-container');
+    const feedbackEl = document.getElementById('feedback');
+    const nextBtn = document.getElementById('next-btn');
+    const checkBtn = document.getElementById('check-btn');
+    const progressEl = document.getElementById('progress');
+    const cardInner = document.getElementById('card-inner');
+
+    // 3. Fetch Data from Python Backend
+    async function initQuiz() {
+        try {
+            const response = await fetch('/api/questions');
+            quizData = await response.json();
+            loadQuestion();
+        } catch (err) {
+            questionEl.innerText = "Error loading quiz data.";
+            console.error(err);
+        }
+    }
+
+    // 4. Quiz Logic
+    function loadQuestion() {
+        const data = quizData[currentQuestion];
+        selectedIndex = null;
+        questionAnswered = false;
+        
+        progressEl.innerText = `Question ${currentQuestion + 1} of ${quizData.length}`;
+        questionEl.innerText = data.q;
+        optionsEl.innerHTML = '';
+        
+        feedbackEl.classList.add('hidden');
+        nextBtn.classList.add('hidden');
+        checkBtn.classList.add('hidden');
+        cardInner.classList.remove('flipped');
+
+        data.options.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.innerText = opt.text;
+            btn.className = 'option-btn';
+            btn.onclick = () => selectOption(index, btn);
+            optionsEl.appendChild(btn);
+        });
+
+        requestAnimationFrame(() => {
+            document.querySelectorAll('.option-btn').forEach((btn, index) => {
+                setTimeout(() => btn.classList.add('visible'), 70 * index + 120);
+            });
+        });
+    }
+
+    function selectOption(index, btn) {
+        if (questionAnswered) return;
+        selectedIndex = index;
+        document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        checkBtn.classList.remove('hidden');
+    }
+
+    checkBtn.onclick = () => {
+        if (selectedIndex === null || questionAnswered) return;
+
+        const data = quizData[currentQuestion];
+        const option = data.options[selectedIndex];
+        
+        document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+        cardInner.classList.add('flipped');
+        
+        feedbackEl.innerText = option.note;
+        feedbackEl.classList.remove('hidden');
+        feedbackEl.className = 'feedback ' + (option.correct ? 'correct' : 'incorrect');
+
+        if (option.correct) score++;
+        questionAnswered = true;
+        checkBtn.classList.add('hidden');
+        nextBtn.classList.remove('hidden');
+        nextBtn.innerText = currentQuestion < quizData.length - 1 ? 'Next Question' : 'See Results';
+    };
+
+    nextBtn.onclick = () => {
+        currentQuestion++;
+        if (currentQuestion < quizData.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    };
+
+    function showResults() {
+        document.getElementById('quiz-content').classList.add('hidden');
+        const resultScreen = document.getElementById('result-screen');
+        resultScreen.classList.remove('hidden');
+        document.getElementById('score-text').innerText = `You got ${score} out of ${quizData.length} correct.`;
+    }
+
+    // Start the process
+    initQuiz();
+</script>
+</body>
+</html>
