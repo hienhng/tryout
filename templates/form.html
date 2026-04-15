@@ -69,6 +69,9 @@
                 alert(error.error || 'Unable to save your information.');
                 return;
             }
+            setTimeout(() => {
+                window.location.href = '/quiz';
+            }, 200);
 
             window.location.href = '/quiz';
         } catch (err) {
