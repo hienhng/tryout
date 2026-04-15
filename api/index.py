@@ -99,25 +99,37 @@ def quiz_page():
 def get_questions():
     return jsonify(QUIZ_DATA)
 
-@app.route('/api/user', methods=['POST'])
+@app.route('/api/user', methods=['GET', 'POST']) # Added GET
 def register_user():
-    """Initial registration from form.html"""
-    data = request.json
-    
-    user_record = UserRecord(
-        full_name=data.get('full_name'),
-        school_name=data.get('school_name'),
-        email=data.get('email'),
-        started_at=datetime.utcnow().isoformat()
-    )
+    if request.method == 'POST':
+        data = request.json
+        
+        # Validation to prevent empty records
+        if not data or not data.get('email'):
+            return jsonify({"error": "Missing data"}), 400
 
-    try:
-        session.permanent = True  # Makes the cookie persist
-        session['user_info'] = asdict(user_record)
-        session.modified = True   # Forces the header to be sent
-        return jsonify({"status": "success"}), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
+        user_record = UserRecord(
+            full_name=data.get('full_name'),
+            school_name=data.get('school_name'),
+            email=data.get('email'),
+            started_at=datetime.utcnow().isoformat()
+        )
+
+        try:
+            # 1. Save to Supabase
+            supabase.table('scores').insert(asdict(user_record)).execute()
+            
+            # 2. Setup Session
+            session.permanent = True
+            session['user_info'] = asdict(user_record)
+            session.modified = True
+            
+            return jsonify({"status": "success"}), 201
+        except Exception as e:
+            return jsonify({"error": str(e)}), 400
+
+    # Handle GET request (optional, for checking session)
+    return jsonify(session.get('user_info', {}))
 
 @app.route('/api/submit-score', methods=['POST'])
 def submit_score():
