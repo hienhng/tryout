@@ -133,18 +133,27 @@ def register_user():
 
 @app.route('/api/submit-score', methods=['POST'])
 def submit_score():
-    """Update the score in Supabase when quiz ends"""
+    """Update the score in Supabase when the quiz ends"""
+    # 1. Check if the user is actually 'logged in' via session
     if 'user_info' not in session:
-        return jsonify({"error": "No session found"}), 401
+        return jsonify({"error": "No active session found"}), 401
     
     data = request.json
     final_score = data.get('score')
     user_email = session['user_info']['email']
 
+    if final_score is None:
+        return jsonify({"error": "No score provided"}), 400
+
     try:
-        # Update the row where the email matches
-        supabase.table('scores').update({"score": final_score}).eq('email', user_email).execute()
-        return jsonify({"status": "score updated"}), 200
+        # 2. Update the existing row in Supabase where the email matches
+        # This assumes your table 'scores' has a column named 'score'
+        supabase.table('scores') \
+            .update({"score": final_score}) \
+            .eq('email', user_email) \
+            .execute()
+        
+        return jsonify({"status": "Score saved successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
