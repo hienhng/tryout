@@ -49,6 +49,3 @@ def index():
 @app.route('/api/questions')
 def get_questions():
     return jsonify(QUIZ_DATA)
-
-if __name__ == '__main__':
-    app.run(debug=True)
