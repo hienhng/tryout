@@ -9,9 +9,20 @@ app = Flask(__name__,
             static_folder='../static')
 
 # Set a secret key for sessions (Vercel will use your environment variable)
-app.secret_key = os.environ.get("SECRET_KEY", "a-very-secret-phrase-123")
+app.secret_key = os.environ.get("SECRET_KEY", "P6.zSvdn7ZMYw-c")
 
 app.permanent_session_lifetime = timedelta(minutes=60)
+
+# 1. Use the fixed environment variable
+app.secret_key = os.environ.get("SECRET_KEY", "fallback-dev-key")
+
+# 2. Force strict cookie settings for Vercel
+app.config.update(
+    SESSION_COOKIE_SECURE=True,   # Required for HTTPS
+    SESSION_COOKIE_HTTPONLY=True, # Security best practice
+    SESSION_COOKIE_SAMESITE='Lax',# Allows the redirect to work
+    PERMANENT_SESSION_LIFETIME=timedelta(minutes=60)
+)
 
 # --- SUPABASE SETUP ---
 # These are pulled automatically from your Vercel + Supabase integration
@@ -101,16 +112,9 @@ def register_user():
     )
 
     try:
-        # 1. Save to Supabase
-        supabase.table('scores').insert(asdict(user_record)).execute()
-        
-        # 2. Set session as permanent (this helps with Vercel cookie persistence)
-        session.permanent = True 
+        session.permanent = True  # Makes the cookie persist
         session['user_info'] = asdict(user_record)
-        
-        # 3. Explicitly tell Flask the session was modified
-        session.modified = True
-        
+        session.modified = True   # Forces the header to be sent
         return jsonify({"status": "success"}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 400
