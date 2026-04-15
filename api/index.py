@@ -1,6 +1,6 @@
 import os
 from dataclasses import asdict, dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import Flask, render_template, jsonify, request, session, redirect
 from supabase import create_client, Client
 
@@ -10,6 +10,8 @@ app = Flask(__name__,
 
 # Set a secret key for sessions (Vercel will use your environment variable)
 app.secret_key = os.environ.get("SECRET_KEY", "a-very-secret-phrase-123")
+
+app.permanent_session_lifetime = timedelta(minutes=60)
 
 # --- SUPABASE SETUP ---
 # These are pulled automatically from your Vercel + Supabase integration
@@ -99,11 +101,16 @@ def register_user():
     )
 
     try:
-        # Save initial record to Supabase
+        # 1. Save to Supabase
         supabase.table('scores').insert(asdict(user_record)).execute()
         
-        # Store in session so /quiz route is unlocked
+        # 2. Set session as permanent (this helps with Vercel cookie persistence)
+        session.permanent = True 
         session['user_info'] = asdict(user_record)
+        
+        # 3. Explicitly tell Flask the session was modified
+        session.modified = True
+        
         return jsonify({"status": "success"}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 400
