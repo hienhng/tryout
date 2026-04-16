@@ -91,6 +91,8 @@ def quiz_page():
     # Only allow access if user has submitted the form
     if 'user_info' not in session:
         return redirect('/')
+    if session.get('attempted', False):
+        return redirect('/')
     return render_template('index.html')
 
 # --- API ROUTES ---
@@ -122,6 +124,7 @@ def register_user():
             # 2. Setup Session
             session.permanent = True
             session['user_info'] = asdict(user_record)
+            session['attempted'] = False
             session.modified = True
             
             return jsonify({"status": "success"}), 201
@@ -153,8 +156,15 @@ def submit_score():
             .eq('started_at', started_at) \
             .execute()
         
+        session['attempted'] = True
+        session.modified = True
         return jsonify({"status": "Score saved successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route('/api/reset', methods=['POST'])
+def reset_session():
+    session.clear()
+    return jsonify({"status": "reset"}), 200
 
 # No app.run() needed for Vercel!

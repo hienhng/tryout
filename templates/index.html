@@ -42,7 +42,7 @@
         <h2>Evaluation Complete</h2>
         <p id="result-summary"></p>
         <p id="score-text"></p>
-        <button onclick="location.reload()" id="restart-btn">Restart Quiz</button>
+        <button id="restart-btn">Restart Quiz</button>
     </section>
 </div>
 
@@ -162,8 +162,19 @@
         }
     }
 
-// Call this function when the quiz ends:
-// sendScoreToDatabase(points);
+    async function restartQuiz() {
+        try {
+            await fetch('/api/reset', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+        } catch (err) {
+            console.warn('Reset request failed, continuing to registration page.');
+        }
+        window.location.href = '/';
+    }
+
+    document.getElementById('restart-btn').onclick = restartQuiz;
 
     // Start with the user info form
 </script>
