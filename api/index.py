@@ -84,8 +84,53 @@ QUIZ_DATA = [
             {"text": "The system overflows and likely crashes.", "correct": False, "note": "This is one possible failure mode but not always the specific behaviour."},
             {"text": "It overflows and triggers an error or failure condition.", "correct": True, "note": "Buffer or capacity overflow usually leads to errors or crashes if not handled."}
         ]
+    },
+    {
+        "q": "A program keeps calling itself to solve smaller versions of the same problem. What is required to prevent it from running forever?",
+        "options": [
+            {"text": "It must run faster each time.", "correct": false, "note": "Speed does not stop infinite repetition."},
+            {"text": "It must include a stopping condition.", "correct": true, "note": "A base case ensures recursion eventually stops."},
+            {"text": "It must use more memory each step.", "correct": false, "note": "More memory does not guarantee termination."},
+            {"text": "It must repeat the same inputs.", "correct": false, "note": "Repeating inputs can actually cause infinite loops."}
+        ]
+    },
+    {
+        "q": "Two conditions must both be true for an action to happen. What type of logic is this?",
+        "options": [
+            {"text": "OR logic.", "correct": false, "note": "OR requires only one condition to be true."},
+            {"text": "NOT logic.", "correct": false, "note": "NOT inverts a condition."},
+            {"text": "AND logic.", "correct": true, "note": "AND requires all conditions to be true."},
+            {"text": "XOR logic.", "correct": false, "note": "XOR requires exactly one condition to be true."}
+        ]
+    },
+    {
+        "q": "A system processes tasks in the order they arrive. Which structure best represents this behavior?",
+        "options": [
+            {"text": "Stack (last in, first out).", "correct": false, "note": "A stack reverses the order of tasks."},
+            {"text": "Queue (first in, first out).", "correct": true, "note": "A queue preserves arrival order."},
+            {"text": "Tree structure.", "correct": false, "note": "Trees organize hierarchical data, not sequential processing."},
+            {"text": "Random selection.", "correct": false, "note": "Random order does not preserve arrival sequence."}
+        ]
+    },
+    {
+        "q": "A system repeats a task until a condition becomes false. What structure is this?",
+        "options": [
+            {"text": "A conditional statement.", "correct": false, "note": "Conditionals check once, not repeatedly."},
+            {"text": "A loop.", "correct": true, "note": "Loops repeat actions based on a condition."},
+            {"text": "A variable assignment.", "correct": false, "note": "Assignment does not control repetition."},
+            {"text": "A function call.", "correct": false, "note": "Functions may repeat, but not by themselves."}
+        ]
+    },
+    {
+        "q": "A program stores a user's name in one place and reuses it everywhere. Later, one update changes it everywhere automatically. What principle does this follow?",
+        "options": [
+            {"text": "Copy-paste the name wherever it is needed.", "correct": false, "note": "Copying data means updates must be made in many places."},
+            {"text": "Store the value once and reference it everywhere.", "correct": true, "note": "A single source of truth reduces errors and makes updates easy."},
+            {"text": "Hard-code the name so it never changes.", "correct": false, "note": "Hard-coding prevents easy updates."},
+            {"text": "Use a random value each time to stay flexible.", "correct": false, "note": "Random values introduce unpredictability, not flexibility."}
+        ]
     }
-]
+            ]
 
 # --- PAGE ROUTES ---
 
