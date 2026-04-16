@@ -138,6 +138,11 @@ body::after {
     border-radius: 1.05rem;
     background: rgba(15,23,42,0.9);
     border: 1px solid rgba(148,163,184,0.25);
+    color: var(--text);
+}
+
+#explanation-panel textarea::placeholder {
+    color: rgba(248,250,252,0.55);
 }
 
 #explanation-note {
