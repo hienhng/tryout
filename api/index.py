@@ -90,26 +90,25 @@ QUIZ_DATA = [
 # --- PAGE ROUTES ---
 
 @app.route('/')
-def home():
-    # Landing page with the registration form (form.html)
+def welcome_page():
+    return render_template('welcome.html', user_info=session.get('user_info'))
+
+@app.route('/register')
+def register_page():
+    if 'user_info' in session and not session.get('attempted', False):
+        return redirect('/quiz')
+    if session.get('attempted', False):
+        return redirect('/')
     return render_template('form.html')
 
 @app.route('/quiz')
 def quiz_page():
     # Only allow access if user has submitted the form
     if 'user_info' not in session:
-        return redirect('/')
+        return redirect('/register')
     if session.get('attempted', False):
         return redirect('/')
     return render_template('index.html')
-
-@app.route('/welcome')
-def welcome_page():
-    if 'user_info' not in session:
-        return redirect('/')
-    if session.get('attempted', False):
-        return redirect('/')
-    return render_template('welcome.html', user_info=session['user_info'])
 
 # --- API ROUTES ---
 

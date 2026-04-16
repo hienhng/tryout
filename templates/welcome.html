@@ -23,17 +23,23 @@
         </div>
 
         <div class="welcome-message">
+            {% if user_info %}
             <p class="lead-text">Hello {{ user_info.full_name }}, welcome to your assessment experience.</p>
             <p>You're registered as a student from <strong>{{ user_info.school_name }}</strong>. When you're ready, continue to the quiz and give it your best.</p>
+            {% else %}
+            <p class="lead-text">Welcome to the LTPC assessment platform.</p>
+            <p>Start your registration to join the LTV Programming Club quiz and prove your logic and problem-solving skills.</p>
+            {% endif %}
         </div>
 
+        {% if user_info %}
         <div class="welcome-meta">
             <div>
                 <span>Registered Email</span>
                 <strong>{{ user_info.email }}</strong>
             </div>
             <div>
-                <span>Organization</span>
+                <span>Club</span>
                 <strong>LTPC</strong>
             </div>
             <div>
@@ -41,12 +47,17 @@
                 <strong>One attempt only</strong>
             </div>
         </div>
+        {% endif %}
 
         <div class="button-row">
+            {% if user_info %}
             <a href="/quiz" class="primary-btn">Continue to Quiz</a>
+            {% else %}
+            <a href="/register" class="primary-btn">Register Now</a>
+            {% endif %}
         </div>
 
-        <p class="fine-print">This is a one-time attempt quiz. If you leave before starting, your registration stays active and you can continue. Once you begin, the quiz cannot be restarted from this session.</p>
+        <p class="fine-print">This is a one-time attempt quiz. {% if user_info %}If you leave before starting, your registration stays active and you can continue. Once you begin, the quiz cannot be restarted from this session.{% else %}Your information will be used to start your quiz session and preserve your single attempt.{% endif %}</p>
     </section>
 </div>
 
