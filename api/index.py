@@ -81,7 +81,7 @@ QUIZ_DATA = [
         "options": [
             {"text": "The fifth item is stored and everything is fine.", "correct": False, "note": "Most fixed-size containers cannot automatically accept extra items."},
             {"text": "The box grows larger to fit the item.", "correct": False, "note": "Dynamic resizing requires explicit logic, not automatic growth."},
-            {"text": "The system overflows and likely crashes.", "correct": False, "note": "This is one possible failure mode but not always the specific behavior."},
+            {"text": "The system overflows and likely crashes.", "correct": False, "note": "This is one possible failure mode but not always the specific behaviour."},
             {"text": "It overflows and triggers an error or failure condition.", "correct": True, "note": "Buffer or capacity overflow usually leads to errors or crashes if not handled."}
         ]
     }
