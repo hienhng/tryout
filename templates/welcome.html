@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to LTPC</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+<div class="welcome-page">
+    <section class="card-body welcome-card">
+        <div class="welcome-top">
+            <div class="brand-avatar">
+                <img src="/static/profile.jpg" alt="LTPC logo">
+            </div>
+            <div>
+                <span class="eyebrow">Welcome to</span>
+                <h1>LTV Programming Club</h1>
+                <p class="brand-subtitle">LTPC • Logic & Problem-Solving Evaluation</p>
+            </div>
+        </div>
+
+        <div class="welcome-message">
+            <p class="lead-text">Hello {{ user_info.full_name }}, welcome to your assessment experience.</p>
+            <p>You're registered as a student from <strong>{{ user_info.school_name }}</strong>. When you're ready, continue to the quiz and give it your best.</p>
+        </div>
+
+        <div class="welcome-meta">
+            <div>
+                <span>Registered Email</span>
+                <strong>{{ user_info.email }}</strong>
+            </div>
+            <div>
+                <span>Organization</span>
+                <strong>LTPC</strong>
+            </div>
+            <div>
+                <span>Attempt Policy</span>
+                <strong>One attempt only</strong>
+            </div>
+        </div>
+
+        <div class="button-row">
+            <a href="/quiz" class="primary-btn">Continue to Quiz</a>
+        </div>
+
+        <p class="fine-print">This is a one-time attempt quiz. If you leave before starting, your registration stays active and you can continue. Once you begin, the quiz cannot be restarted from this session.</p>
+    </section>
+</div>
+
+</body>
+</html>

@@ -103,6 +103,14 @@ def quiz_page():
         return redirect('/')
     return render_template('index.html')
 
+@app.route('/welcome')
+def welcome_page():
+    if 'user_info' not in session:
+        return redirect('/')
+    if session.get('attempted', False):
+        return redirect('/')
+    return render_template('welcome.html', user_info=session['user_info'])
+
 # --- API ROUTES ---
 
 @app.route('/api/questions')
