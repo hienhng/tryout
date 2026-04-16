@@ -31,6 +31,12 @@
                 <div id="options-panel">
                     <h3>Pick an answer</h3>
                     <div id="options-container"></div>
+
+                    <div id="explanation-panel">
+                        <label for="explanation-input">Explain your choice</label>
+                        <textarea id="explanation-input" rows="4" placeholder="Describe why you selected this answer."></textarea>
+                        <p id="explanation-note">Your explanation is required before moving on.</p>
+                    </div>
                 </div>
 
                 <button id="next-btn" disabled>Next Question</button>
@@ -58,7 +64,17 @@
     const optionsEl = document.getElementById('options-container');
     const progressEl = document.getElementById('progress');
     const nextBtn = document.getElementById('next-btn');
+    const explanationInput = document.getElementById('explanation-input');
+    const explanationNote = document.getElementById('explanation-note');
     const resultSummary = document.getElementById('result-summary');
+
+    function updateNextButtonState() {
+        const explanationValid = explanationInput.value.trim().length > 0;
+        nextBtn.disabled = selectedIndex === null || !explanationValid;
+        explanationNote.style.opacity = explanationValid ? '0' : '1';
+    }
+
+    explanationInput.oninput = updateNextButtonState;
 
     // 3. Fetch Data from Python Backend
     async function initQuiz() {
@@ -94,8 +110,13 @@
         questionEl.innerText = data.q;
         optionsEl.innerHTML = '';
 
+        if (data.explanation === undefined) {
+            data.explanation = '';
+        }
+        explanationInput.value = data.explanation;
         nextBtn.disabled = true;
         nextBtn.innerText = currentQuestion < quizData.length - 1 ? 'Next Question' : 'Submit';
+        updateNextButtonState();
 
         data.options.forEach((opt, index) => {
             const btn = document.createElement('button');
@@ -116,13 +137,14 @@
         selectedIndex = index;
         document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
-        nextBtn.disabled = false;
+        updateNextButtonState();
     }
 
     nextBtn.onclick = () => {
         if (selectedIndex === null) return;
 
         quizData[currentQuestion].selected = selectedIndex;
+        quizData[currentQuestion].explanation = explanationInput.value.trim();
         currentQuestion++;
 
         if (currentQuestion < quizData.length) {
@@ -146,10 +168,22 @@
     }
     async function sendScoreToDatabase(totalScore) {
         try {
+            const payload = {
+                score: totalScore,
+                responses: quizData.map((q, index) => ({
+                    questionId: index + 1,
+                    question: q.q,
+                    selected: q.selected,
+                    selectedText: q.options[q.selected]?.text || null,
+                    explanation: q.explanation || '',
+                    correct: q.options[q.selected]?.correct || false
+                }))
+            };
+
             const response = await fetch('/api/submit-score', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ score: totalScore })
+                body: JSON.stringify(payload)
             });
 
             if (response.ok) {

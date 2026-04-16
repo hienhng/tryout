@@ -135,13 +135,18 @@ def register_user():
     return jsonify(session.get('user_info', {}))
 
 @app.route('/api/submit-score', methods=['POST'])
-@app.route('/api/submit-score', methods=['POST'])
 def submit_score():
     if 'user_info' not in session:
         return jsonify({"error": "No active session found"}), 401
     
     data = request.json
     final_score = data.get('score')
+    responses = data.get('responses', [])
+
+    if final_score is None:
+        return jsonify({"error": "Score is required"}), 400
+    if not isinstance(responses, list):
+        return jsonify({"error": "Responses must be an array"}), 400
     
     # Get the specific details from the session
     user_email = session['user_info']['email']
@@ -151,7 +156,7 @@ def submit_score():
         # We filter by BOTH email AND the exact start time 
         # so we only update the single row created at the start of this quiz
         supabase.table('scores') \
-            .update({"score": final_score}) \
+            .update({"score": final_score, "responses": responses}) \
             .eq('email', user_email) \
             .eq('started_at', started_at) \
             .execute()
