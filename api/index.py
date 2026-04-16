@@ -41,42 +41,50 @@ class UserRecord:
 # --- QUIZ DATA ---
 QUIZ_DATA = [
     {
-        "q": "You have a filing cabinet with 1,000,000 folders...",
+        "q": "You have a filing cabinet with 1,000,000 folders. What is the fastest way to locate a single folder if the list is sorted?",
         "options": [
-            {"text": "Open the middle, check if before/after...", "correct": True, "note": "Binary Search..."},
-            {"text": "Start at the first folder...", "correct": False, "note": "Linear Search..."},
-            {"text": "Pick random drawers...", "correct": False, "note": "Randomness..."}
+            {"text": "Start at the first folder and go one by one.", "correct": False, "note": "That would be linear search and too slow for a million items."},
+            {"text": "Open the middle, check if it's before/after, then repeat.", "correct": True, "note": "Binary search works well on sorted collections."},
+            {"text": "Pick random drawers until you find it.", "correct": False, "note": "Random search is inefficient and unreliable."},
+            {"text": "Split the cabinet into two halves and search both at once.", "correct": False, "note": "The idea is close, but binary search is the specific correct method."}
         ]
     },
     {
-        "q": "A robot finds its way out of a maze. Which logic ensures it finds the exit?",
+        "q": "A robot finds its way out of a maze. Which logic ensures it will eventually exit?",
         "options": [
-            {"text": "Always keep your right hand touching a wall.", "correct": True, "note": "The Wall Follower rule ensures you explore the boundary."},
-            {"text": "Walk forward until you hit a wall, then turn randomly.", "correct": False, "note": "Random turns can lead to infinite loops."}
+            {"text": "Keep moving straight and hope the exit appears.", "correct": False, "note": "This does not guarantee maze exit."},
+            {"text": "Always keep your right hand touching a wall.", "correct": False, "note": "This works only for simple mazes with one boundary."},
+            {"text": "Randomly choose a direction at each intersection.", "correct": False, "note": "Random moves can lead to loops and do not guarantee exit."},
+            {"text": "Use a systematic wall-follower strategy to explore the boundary.", "correct": True, "note": "Wall following explores the maze boundary consistently."}
         ]
     },
     {
         "q": "Alarm requirement: 'Master Key ON' AND ('Button A' OR 'Button B'). If Key is OFF but both buttons are pressed, what happens?",
         "options": [
-            {"text": "The alarm stays silent.", "correct": True, "note": "The 'AND' gate failed because the Key was OFF."},
-            {"text": "The alarm goes off.", "correct": False, "note": "The Master Key is a mandatory gatekeeper."}
+            {"text": "The alarm stays silent.", "correct": False, "note": "The AND condition requires the Master Key to be ON."},
+            {"text": "The alarm goes off.", "correct": False, "note": "Without the Master Key ON, the AND condition fails."},
+            {"text": "The alarm remains off because the Master Key is OFF.", "correct": True, "note": "Both button inputs matter, but the Master Key gate is mandatory."},
+            {"text": "The buttons override the Master Key and trigger the alarm.", "correct": False, "note": "The logical requirement prevents button-only triggering."}
         ]
     },
     {
-        "q": "If doubling the work makes the time jump from 10s to 40s, what does this tell you?",
+        "q": "If doubling the work makes the time jump from 10s to 40s, what does this tell you about the process?",
         "options": [
-            {"text": "The process gets significantly slower as it scales up.", "correct": True, "note": "This is non-linear (Quadratic) growth."},
-            {"text": "The process is perfectly efficient.", "correct": False, "note": "Efficiency would be a linear 20s."}
+            {"text": "It is a linear process with perfect efficiency.", "correct": False, "note": "Linear scaling would double the time from 10s to 20s."},
+            {"text": "The process becomes twice as fast.", "correct": False, "note": "The time increasing means it is not faster."},
+            {"text": "It is growing quadratically or worse.", "correct": True, "note": "A jump from 10s to 40s when doubling work suggests non-linear scaling."},
+            {"text": "It only works for small inputs, not for larger ones.", "correct": False, "note": "This might be true in general, but the time pattern points to quadratic growth."}
         ]
     },
     {
-        "q": "If a box holds 4 items and you force a 5th one in, what happens in a typical system?",
+        "q": "If a box holds 4 items and you force a 5th one in, what typically happens in a system?",
         "options": [
-            {"text": "The system overflows and likely crashes.", "correct": True, "note": "Buffer overflows are a major security and stability risk."},
-            {"text": "The box grows larger on its own.", "correct": False, "note": "Hardware needs explicit instructions to reallocate memory."}
+            {"text": "The fifth item is stored and everything is fine.", "correct": False, "note": "Most fixed-size containers cannot automatically accept extra items."},
+            {"text": "The box grows larger to fit the item.", "correct": False, "note": "Dynamic resizing requires explicit logic, not automatic growth."},
+            {"text": "The system overflows and likely crashes.", "correct": False, "note": "This is one possible failure mode but not always the specific behavior."},
+            {"text": "It overflows and triggers an error or failure condition.", "correct": True, "note": "Buffer or capacity overflow usually leads to errors or crashes if not handled."}
         ]
     }
-    # ... add your other 4 questions here ...
 ]
 
 # --- PAGE ROUTES ---
