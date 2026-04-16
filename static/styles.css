@@ -287,10 +287,11 @@ body::after {
 }
 
 #options-container {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(280px, 1fr));
     gap: 0.85rem;
     width: 100%;
+    align-items: stretch;
     margin-top: 1rem;
 }
 
@@ -360,8 +361,9 @@ button,
 
 #options-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(2, minmax(280px, 1fr));
     gap: 0.85rem;
+    align-items: stretch;
     margin-top: 1rem;
 }
 
