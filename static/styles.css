@@ -19,6 +19,7 @@ body {
     background: radial-gradient(circle at top left, rgba(56,189,248,0.18), transparent 20%),
                 radial-gradient(circle at bottom right, rgba(34,197,94,0.14), transparent 18%),
                 #0f172a;
+                background-image: url('static\background.jpg');
     color: var(--text);
     display: flex;
     justify-content: center;
